@@ -1,0 +1,90 @@
+ UNIVERSIDADE DO VALE DO ITAJAÍ - UNIVALI
+Disciplina: Programação para Dispositivos Móveis II
+Professor(a): Welington Gadelha
+Trabalho M2: Pokédex Integração, Persistência e
+Arquitetura
+1 OBJETIVO
+Evoluir a aplicação Pokédex Multiplatform desenvolvida na M1. O
+objetivo desta etapa é substituir a camada de dados simulada por consumo de
+uma API real, implementar padrões de arquitetura para gerenciamento de estado
+e ciclo de vida, e introduzir persistência local de dados com regras de negócio
+customizadas.
+2 ARQUITETURA E GERENCIAMENTO DE ESTADO
+A aplicação deve abandonar o acoplamento direto de lógica na UI,
+adotando o padrão recomendado de separação de conceitos.
+• ViewModel: Implementar a classe ViewModel (utilizando o componente
+oficial do Lifecycle compatível com KMP) para gerenciar o estado da UI
+de forma reativa e segura a rotações e mudanças de configuração.
+• Estado das telas: expor para o Compose como um fluxo de estado único
+(ex: StateFlow), representando explicitamente os estados de: Loading,
+Success (com os dados) e Error (com tratamento de falhas de rede ou
+banco).
+3 CAMADA DE DADOS
+O repositório mockado na M1 deve ser integralmente substituído por
+uma arquitetura híbrida de persistência local e consumo da PokeAPI. O aluno
+deve estruturar a camada de dados seguindo a estratégia Offline-First,
+garantindo que a aplicação funcione de forma otimizada:
+• Sincronização Inicial: Como a listagem base de Pokémons é estática, o
+aplicativo deve, logo na primeira inicialização, realizar uma busca na API
+para obter a relação de nomes e IDs. Esses dados devem ser persistidos
+em uma tabela local no banco de dados (ex: PokemonCache). Nas
+ UNIVERSIDADE DO VALE DO ITAJAÍ - UNIVALI
+Disciplina: Programação para Dispositivos Móveis II
+Professor(a): Welington Gadelha
+inicializações subsequentes, o app deve validar se esse processo já foi
+realizado, evitando requisições redundantes à rede.
+• Paginação: A listagem principal de Pokémons na interface não deve
+carregar todos os registros do banco de dados de uma só vez. Deve ser
+implementado um mecanismo de paginação sob demanda. Conforme o
+usuário realiza a rolagem (scroll) da tela, novas páginas de dados devem
+ser consultadas na tabela local e acopladas à UI.
+• Filtros: O sistema de filtros deve ser integrado nativamente ao mecanismo
+de paginação, mas agora atuando diretamente sobre o banco de dados
+local. O aplicativo deve permitir a busca por nome (via SearchBar) ou
+filtragem por tipo, traduzindo as ações da UI em parâmetros dinâmicos de
+Query (como cláusulas WHERE, LIKE e LIMIT/OFFSET) executados
+contra a tabela local.
+• Consulta HTTP em Tempo Real: Ao clicar em um Pokémon para abrir a
+tela de Pokemon Details, a aplicação não deve ler as informações
+detalhadas do banco local. Em vez disso, deve ser realizada
+obrigatoriamente uma requisição HTTP direta para o endpoint específico
+da PokeAPI utilizando o ID ou nome do Pokémon. Isso garante o consumo
+de dados atualizados (como novos atributos, habilidades e caminhos de
+imagens de alta resolução) em tempo real, mantendo o aprendizado
+prático de clientes HTTP (ex: Ktor) integrado ao fluxo de navegação.
+4 PERSISTÊNCIA LOCAL
+A funcionalidade de salvar Pokémons no time/favoritos agora deve ser
+persistida de forma definitiva no dispositivo, utilizando uma biblioteca SQL nativa
+do ecossistema Kotlin Multiplatform (recomenda-se Room KMP).
+• Banco de Dados Relacional: Criação de tabelas para armazenar os
+Pokémons favoritados pelo usuário.
+• Nova Regra de Negócio: Ao favoritar ou adicionar um Pokémon ao time
+na tela de Details, a aplicação deve coletar a partir de campos de input
+ UNIVERSIDADE DO VALE DO ITAJAÍ - UNIVALI
+Disciplina: Programação para Dispositivos Móveis II
+Professor(a): Welington Gadelha
+(texto livre ou seleção de cidade) e persistir uma nova informação
+obrigatória: onde o Pokémon foi capturado.
+5 CRITÉRIOS DE AVALIAÇÃO
+A avaliação do Trabalho M2 consistirá na análise rigorosa da evolução
+arquitetural do projeto, cobrando a implementação do componente ViewModel
+oficial e a exposição reativa do estado da UI (Loading, Success e Error).
+Na camada de persistência e rede, será validada a eficiência da
+estratégia Offline-First por meio da sincronização inicial de dados (nomes e IDs)
+salvos localmente, além da correta execução de consultas SQL dinâmicas com
+paginação e filtros diretamente na tabela local.
+O domínio de consumo de APIs em tempo real será avaliado na tela de
+detalhes através de requisições HTTP diretas e assíncronas à PokeAPI. Por fim,
+a nota contemplará a modelagem do banco de dados relacional para persistência
+de favoritos, o cumprimento da nova regra de negócio que exige o mapeamento
+e gravação do local de captura do Pokémon, e a organização geral do projeto.
+6 ENTREGA
+O projeto deve ser realizado obrigatoriamente em duplas e devidamente
+identificado com o nome dos integrantes no código-fonte ou em um arquivo
+README. A entrega consiste na postagem do projeto em um repositório público
+no GitHub ou GitLab, sendo que o link de acesso deve ser enviado
+exclusivamente através do AVA dentro do prazo estipulado.
+Para fins de correção e rastreabilidade, permitindo que o professor
+realize uma comparação clara das modificações efetuadas, o desenvolvimento
+da M2 deve ser entregue obrigatoriamente em uma branch separada (ex:
+feature/m2 ou m2) a partir do histórico de commits da M1.
