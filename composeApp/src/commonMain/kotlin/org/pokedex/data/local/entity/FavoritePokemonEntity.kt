@@ -15,5 +15,8 @@ data class FavoritePokemonEntity(
     val spAtk: Int,
     val spDef: Int,
     val speed: Int,
-    val captureLocation: String
+    val captureLocation: String,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val photoPath: String? = null
 )

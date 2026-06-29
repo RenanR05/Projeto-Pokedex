@@ -5,18 +5,19 @@ Este é um projeto de estudo desenvolvido em **Kotlin Multiplatform (KMP)** e **
 ## Integrantes da Dupla
 - Renan Regis
 - Luan Regis
-> [!IMPORTANT]
-> Favor editar o arquivo README.md para incluir os nomes dos integrantes da dupla.
 
 ## Objetivo
 Desenvolver uma aplicação Pokédex compartilhada entre Android e iOS, explorando conceitos de navegação tipada, gerenciamento de estado compartilhado e diferenciação de UI via `expect/actual`.
 
 ## Funcionalidades
 - **Home Screen**: Dashboard com identidade visual impactante.
-- **Pokedex List**: Listagem em Grid com busca (SearchBar).
+- **Pokedex List**: Listagem em Grid com busca (SearchBar) e filtro por tipo.
 - **Pokemon Details**: Detalhes completos, descrição e estatísticas animadas.
-- **Team Builder**: Gerenciamento de time (máximo 6 Pokémons).
-- **Expect/Actual**: Implementação diferenciada da tela de Time para Android (Material 3) e iOS (Apple Human Interface).
+- **Team Builder**: Gerenciamento de time com foto de captura e coordenadas GPS.
+- **Câmera Nativa**: Ao capturar um Pokémon, o app abre a câmera para tirar a foto do local.
+- **Geolocalização GPS**: Coordenadas de latitude e longitude são salvas automaticamente no momento da captura.
+- **Persistência Local (Room)**: Banco de dados com migração automática (v1 → v2) adicionando os campos `latitude`, `longitude` e `photoPath`.
+- **Expect/Actual**: Implementação diferenciada da tela de Time para Android (Material 3) e iOS (Human Interface Guidelines).
 
 ## Requisitos
 - **Android Studio** (Koala ou superior recomendado)

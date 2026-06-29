@@ -41,9 +41,9 @@ class PokemonDetailViewModel(
         }
     }
 
-    fun addToTeam(pokemon: Pokemon, captureLocation: String) {
+    fun addToTeam(pokemon: Pokemon, latitude: Double, longitude: Double, photoPath: String?) {
         viewModelScope.launch {
-            repository.addToTeam(pokemon, captureLocation)
+            repository.addToTeam(pokemon, latitude, longitude, photoPath)
             _state.update { current ->
                 if (current is PokemonDetailState.Success) current.copy(isInTeam = true) else current
             }

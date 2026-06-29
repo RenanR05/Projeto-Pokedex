@@ -84,7 +84,8 @@ class PokemonRepositoryImpl(
         )
     }
 
-    override suspend fun addToTeam(pokemon: Pokemon, captureLocation: String) {
+    override suspend fun addToTeam(pokemon: Pokemon, latitude: Double, longitude: Double, photoPath: String?) {
+        val locationLabel = "${formatGeoCoord(latitude)}, ${formatGeoCoord(longitude)}"
         favoriteDao.insert(
             FavoritePokemonEntity(
                 id = pokemon.id,
@@ -97,7 +98,10 @@ class PokemonRepositoryImpl(
                 spAtk = pokemon.stats.spAtk,
                 spDef = pokemon.stats.spDef,
                 speed = pokemon.stats.speed,
-                captureLocation = captureLocation
+                captureLocation = locationLabel,
+                latitude = latitude,
+                longitude = longitude,
+                photoPath = photoPath
             )
         )
     }
@@ -111,6 +115,14 @@ class PokemonRepositoryImpl(
 
     override fun observeTeam(): Flow<List<FavoritePokemonEntity>> =
         favoriteDao.observeAll()
+}
+
+private fun formatGeoCoord(value: Double): String {
+    val sign = if (value < 0) "-" else ""
+    val abs = if (value < 0) -value else value
+    val intPart = abs.toLong()
+    val decPart = ((abs - intPart) * 10000).toLong()
+    return "${sign}${intPart}.${decPart.toString().padStart(4, '0')}"
 }
 
 private fun String.toPokemonType(): PokemonType? = when (this.lowercase()) {

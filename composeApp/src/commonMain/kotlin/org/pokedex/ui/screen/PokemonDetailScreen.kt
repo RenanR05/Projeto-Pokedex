@@ -19,6 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import org.pokedex.data.model.Pokemon
 import org.pokedex.di.AppDependencies
+import org.pokedex.platform.CaptureScreen
 import org.pokedex.ui.components.StatBar
 import org.pokedex.ui.components.TypeBadge
 import org.pokedex.ui.theme.getTypeColor
@@ -58,7 +59,9 @@ fun PokemonDetailScreen(
                 PokemonDetailContent(
                     pokemon = s.pokemon,
                     isInTeam = s.isInTeam,
-                    onAddToTeam = { pokemon, location -> viewModel.addToTeam(pokemon, location) },
+                    onAddToTeam = { pokemon, lat, lon, photo ->
+                        viewModel.addToTeam(pokemon, lat, lon, photo)
+                    },
                     onRemoveFromTeam = { viewModel.removeFromTeam(s.pokemon.id) }
                 )
             }
@@ -70,45 +73,19 @@ fun PokemonDetailScreen(
 private fun PokemonDetailContent(
     pokemon: Pokemon,
     isInTeam: Boolean,
-    onAddToTeam: (Pokemon, String) -> Unit,
+    onAddToTeam: (Pokemon, Double, Double, String?) -> Unit,
     onRemoveFromTeam: () -> Unit
 ) {
     val mainTypeColor = getTypeColor(pokemon.types.firstOrNull() ?: return)
     var showCaptureDialog by remember { mutableStateOf(false) }
-    var captureLocation by remember { mutableStateOf("") }
 
     if (showCaptureDialog) {
-        AlertDialog(
-            onDismissRequest = { showCaptureDialog = false },
-            title = { Text("Local de Captura") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Onde você capturou ${pokemon.name}?")
-                    OutlinedTextField(
-                        value = captureLocation,
-                        onValueChange = { captureLocation = it },
-                        placeholder = { Text("Ex: Floresta de Viridian") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (captureLocation.isNotBlank()) {
-                            onAddToTeam(pokemon, captureLocation)
-                            showCaptureDialog = false
-                            captureLocation = ""
-                        }
-                    }
-                ) { Text("Confirmar") }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    showCaptureDialog = false
-                    captureLocation = ""
-                }) { Text("Cancelar") }
+        CaptureScreen(
+            pokemon = pokemon,
+            onDismiss = { showCaptureDialog = false },
+            onCaptureComplete = { data ->
+                onAddToTeam(pokemon, data.latitude, data.longitude, data.photoPath)
+                showCaptureDialog = false
             }
         )
     }
