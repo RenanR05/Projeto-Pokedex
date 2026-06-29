@@ -16,17 +16,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import org.pokedex.data.model.Pokemon
+import org.pokedex.data.model.PokemonType
 import org.pokedex.ui.theme.getTypeColor
+
+private fun String.toPokemonTypes(): List<PokemonType> =
+    split(",").mapNotNull { name ->
+        PokemonType.entries.firstOrNull { it.name.equals(name.trim(), ignoreCase = true) }
+    }
+
+private fun spriteUrl(id: Int) =
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$id.png"
 
 @Composable
 fun PokemonCard(
-    pokemon: Pokemon,
+    id: Int,
+    name: String,
+    types: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val mainTypeColor = getTypeColor(pokemon.types.first())
-    
+    val typeList = types.toPokemonTypes()
+    val mainTypeColor = if (typeList.isNotEmpty()) getTypeColor(typeList.first()) else Color(0xFFA8A878)
+
     ElevatedCard(
         modifier = modifier
             .fillMaxWidth()
@@ -54,46 +65,48 @@ fun PokemonCard(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "#${pokemon.id.toString().padStart(3, '0')}",
+                    text = "#${id.toString().padStart(3, '0')}",
                     modifier = Modifier.align(Alignment.End),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White.copy(alpha = 0.6f)
                 )
-                
+
                 AsyncImage(
-                    model = pokemon.imageUrl,
-                    contentDescription = pokemon.name,
+                    model = spriteUrl(id),
+                    contentDescription = name,
                     modifier = Modifier
                         .weight(1f)
                         .padding(8.dp)
                 )
-                
+
                 Text(
-                    text = pokemon.name,
+                    text = name,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                
-                Row(
-                    modifier = Modifier.padding(top = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    pokemon.types.forEach { type ->
-                        Box(
-                            modifier = Modifier
-                                .background(
-                                    color = getTypeColor(type).copy(alpha = 0.3f),
-                                    shape = RoundedCornerShape(8.dp)
+
+                if (typeList.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.padding(top = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        typeList.forEach { type ->
+                            Box(
+                                modifier = Modifier
+                                    .background(
+                                        color = getTypeColor(type).copy(alpha = 0.3f),
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
+                                    .padding(horizontal = 8.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = type.displayName,
+                                    fontSize = 10.sp,
+                                    color = Color.White
                                 )
-                                .padding(horizontal = 8.dp, vertical = 2.dp)
-                        ) {
-                            Text(
-                                text = type.displayName,
-                                fontSize = 10.sp,
-                                color = Color.White
-                            )
+                            }
                         }
                     }
                 }
